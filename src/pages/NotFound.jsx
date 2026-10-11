@@ -1,0 +1,2 @@
+import { Button, Seo } from '../components/ui'
+export default function NotFound(){ return <section className="mx-auto max-w-xl px-5 py-28 text-center"><Seo title="Page not found" description="This page could not be found."/><h1 className="font-serif text-5xl">404</h1><p className="mt-3 text-muted">That page doesn’t exist.</p><div className="mt-6"><Button to="/">Back to Home</Button></div></section> }
