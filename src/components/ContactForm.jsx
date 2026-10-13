@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { profile } from '../data/profile'
+import { siteData } from '../data/siteData'
 const env = import.meta.env
 const configured = !!(env.VITE_EMAILJS_SERVICE_ID && env.VITE_EMAILJS_TEMPLATE_ID && env.VITE_EMAILJS_PUBLIC_KEY)
 const cats = ['Freight forwarding and logistics','Customs clearance support','Transport and cargo coordination','Regional trade and supply chain','Business development and entrepreneurship','Logistics marketing and referrals','Writing and editorial projects','Community development and knowledge exchange']
@@ -13,7 +13,7 @@ export default function ContactForm({kind='contact'}){
   const onSubmit = async (d) => {
     if (d.website) return // honeypot spam trap
     const body = Object.entries(d).filter(([k])=>k!=='website'&&k!=='privacy').map(([k,v])=>`${k}: ${v}`).join('\n')
-    if (!configured) { window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(d.subject||d.enquiryType||'Website enquiry')}&body=${encodeURIComponent(body)}`; setStatus('fallback'); return }
+    if (!configured) { window.location.href = `mailto:${siteData.contact.email}?subject=${encodeURIComponent(d.subject||d.enquiryType||'Website enquiry')}&body=${encodeURIComponent(body)}`; setStatus('fallback'); return }
     try { const ej = (await import('@emailjs/browser')).default
       await ej.send(env.VITE_EMAILJS_SERVICE_ID, env.VITE_EMAILJS_TEMPLATE_ID, { ...d, message: body, reply_to: d.email }, { publicKey: env.VITE_EMAILJS_PUBLIC_KEY })
       setStatus('ok'); reset() } catch { setStatus('error') }
@@ -37,7 +37,7 @@ export default function ContactForm({kind='contact'}){
     <button disabled={isSubmitting} className="min-h-11 rounded-md bg-forest px-6 py-3 text-ivory hover:bg-deep disabled:opacity-60">{isSubmitting?'Sending…':'Send message'}</button>
     <div aria-live="polite" className="text-sm">
       {status==='ok' && <p className="text-forest">Thank you. Your message has been sent.</p>}
-      {status==='error' && <p className="text-red-700">Sending failed. Please email <a className="underline" href={`mailto:${profile.email}`}>{profile.email}</a> directly.</p>}
+      {status==='error' && <p className="text-red-700">Sending failed. Please email <a className="underline" href={`mailto:${siteData.contact.email}`}>{siteData.contact.email}</a> directly.</p>}
       {status==='fallback' && <p className="text-muted">Online delivery is not configured, so your email app was opened with the message prepared. Nothing has been sent until you send it from there.</p>}
     </div></form>
 }
