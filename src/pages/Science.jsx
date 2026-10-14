@@ -1,12 +1,17 @@
-import { Card, Grid, Hero, Section, Seo, PageHero } from '../components/ui'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { PageHero, Section, Seo } from '../components/ui'
 import { siteData } from '../data/siteData'
 
-export const ResearchCard = ({ title, description, details }) => (
-  <Card title={title}>{description}{details && <span className="mt-2 block">{details}</span>}</Card>
-)
+const cardReveal = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45 } },
+}
 
 export default function Science() {
   const { science } = siteData;
+  const [expandedCard, setExpandedCard] = useState(null)
+
   return <>
     <Seo title="Science & Research" description="Biological Sciences foundations: microbiology, public health, environmental sustainability and evidence-based thinking." />
     <PageHero
@@ -16,13 +21,52 @@ export default function Science() {
       image={science.heroImage}
       dark
     />
-    <Section title="Areas of Interest">
-      <Grid>{science.researchAreas.map(({ title, description }) => <Card key={title} title={title}>{description}</Card>)}</Grid>
-    </Section>
-    <Section title="Academic Experience" intro="Academic projects, undergraduate research, laboratory work, and relevant coursework." tone="bg-mist">
-      <Grid cols="md:grid-cols-2">
-        <ResearchCard title="Project details coming soon" description="Further details of academic projects and research will be added here." details="Reusable ResearchCard: add entries to src/data/projects.js." />
-      </Grid>
+    <Section title="Areas of Interest" intro="An academic foundation and evolving interests, presented without implying completed research projects.">
+      <motion.div
+        className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: '-60px' }}
+        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+      >
+        {science.researchCards.map((card, index) => {
+          const expanded = expandedCard === index
+          return <motion.article
+            key={card.title}
+            variants={cardReveal}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="overflow-hidden rounded-xl border border-forest/10 bg-white transition-shadow hover:shadow-lg"
+          >
+            <div className="aspect-[16/10] overflow-hidden bg-mist">
+              <motion.img
+                src={card.image.src}
+                alt={card.image.alt}
+                loading="lazy"
+                onError={event => {
+                  event.currentTarget.onerror = null
+                  event.currentTarget.src = science.fallbackImage.src
+                }}
+                className="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:hover:scale-[1.03]"
+              />
+            </div>
+            <div className="p-5">
+              <p className="text-xs font-medium uppercase tracking-wide text-forest">{card.category}</p>
+              <h3 className="mt-2 font-serif text-xl leading-tight">{card.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted">{card.description}</p>
+              <button
+                type="button"
+                aria-expanded={expanded}
+                aria-controls={`science-detail-${index}`}
+                onClick={() => setExpandedCard(expanded ? null : index)}
+                className="mt-4 rounded-sm text-sm font-medium text-forest underline decoration-brass underline-offset-4 hover:text-brass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2"
+              >
+                {expanded ? 'Hide context' : 'View context'}
+              </button>
+              <p id={`science-detail-${index}`} hidden={!expanded} className="mt-3 border-l-2 border-brass pl-3 text-sm text-muted">{card.details}</p>
+            </div>
+          </motion.article>
+        })}
+      </motion.div>
     </Section>
   </>
 }

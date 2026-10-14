@@ -7,6 +7,26 @@ import { motion } from 'framer-motion'
 
 const meta = a => [a.demo ? 'Demonstration content' : a.author, a.date, `${readingTime(a)} min read`].filter(Boolean).join(' · ')
 const path = a => `/${a.section === 'ideas' ? 'ideas-strategies' : 'stories'}/${a.slug}`
+const formatArticleDate = value => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return 'Not specified'
+  const date = new Date(`${value}T00:00:00Z`)
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) return 'Not specified'
+  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(date)
+}
+
+const getRelatedArticles = article => articles
+  .filter(candidate => candidate.section === article.section && candidate.slug !== article.slug && !candidate.demo && candidate.status !== 'draft' && candidate.published !== false)
+  .map(candidate => {
+    const shared = (left = [], right = []) => left.filter(value => right.includes(value)).length
+    const score = Number(candidate.category === article.category)
+      + shared(candidate.tags, article.tags) * 2
+      + shared(candidate.topics, article.topics) * 2
+      + shared(candidate.editorialThemes, article.editorialThemes)
+    return { article: candidate, score }
+  })
+  .filter(result => result.score > 0)
+  .sort((left, right) => right.score - left.score)
+  .slice(0, 3)
 
 const cardReveal = {
   hidden: { opacity: 0, y: 20 },
@@ -152,12 +172,15 @@ export const Ideas = () => {
 export function ArticleDetail() {
   const { slug } = useParams(), a = articles.find(x => x.slug === slug)
   if (!a) return <Section title="Article not found"><Link className="underline" to="/stories">Back to stories</Link></Section>
-  const rel = articles.filter(x => x.section === a.section && x.slug !== a.slug).slice(0, 3), url = typeof window !== 'undefined' ? window.location.href : ''
+  const relatedArticles = getRelatedArticles(a), url = typeof window !== 'undefined' ? window.location.href : ''
   return <>
     <Seo title={a.title} description={a.excerpt} />
     <article className="mx-auto max-w-3xl px-5 py-16">
+      <p className="text-xs text-brass uppercase tracking-wide">{a.category}</p>
+      <h1 className="mt-2 font-serif text-3xl md:text-4xl lg:text-5xl leading-tight">{a.title}</h1>
+      <p className="mt-3 text-sm text-muted">{meta(a)}</p>
       {a.coverImage && (
-        <div className="mb-8 rounded-xl overflow-hidden">
+        <div className="mt-8 overflow-hidden rounded-xl">
           <img
             src={a.coverImage.src}
             alt={a.coverImage.alt}
@@ -165,13 +188,46 @@ export function ArticleDetail() {
           />
         </div>
       )}
-      <p className="text-xs text-brass uppercase tracking-wide">{a.category}</p>
-      <h1 className="mt-2 font-serif text-3xl md:text-4xl lg:text-5xl leading-tight">{a.title}</h1>
-      <p className="mt-3 text-sm text-muted">{meta(a)}</p>
+      {!a.demo && <section aria-label="Publication dates" className="mt-8 grid gap-5 rounded-xl border border-forest/10 bg-white p-5 shadow-sm sm:grid-cols-2 sm:p-6">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-forest">Published</p>
+          <p className="mt-2 text-sm text-muted">{formatArticleDate(a.publishedAt)}</p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-forest">Last Updated</p>
+          <p className="mt-2 text-sm text-muted">{formatArticleDate(a.updatedAt)}</p>
+        </div>
+      </section>}
       {a.demo && <p className="mt-4 rounded bg-mist p-3 text-sm">Demonstration content: not a published work.</p>}
       <div className="prose-art mt-8 font-serif">{a.body.map((p, i) => <p key={i}>{p}</p>)}</div>
       <p className="mt-8 border-t border-forest/10 pt-4 text-sm">Share: <a className="underline" target="_blank" rel="noreferrer" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`}>LinkedIn</a> · <a className="underline" target="_blank" rel="noreferrer" href={`https://wa.me/?text=${encodeURIComponent(a.title + ' ' + url)}`}>WhatsApp</a></p>
-      {rel.length > 0 && <div className="mt-10"><h2 className="font-serif text-2xl">Related</h2><ul className="mt-3 space-y-1">{rel.map(r => <li key={r.slug}><Link className="underline" to={path(r)}>{r.title}</Link></li>)}</ul></div>}
+      {relatedArticles.length > 0 && <section aria-labelledby="related-articles-heading" className="mt-14 border-t border-forest/10 pt-10">
+        <p className="text-xs font-semibold uppercase tracking-[.16em] text-brass">Related Articles</p>
+        <h2 id="related-articles-heading" className="mt-2 font-serif text-2xl md:text-3xl">More stories you may like</h2>
+        <Stagger className="mt-6 grid gap-5 sm:grid-cols-2">
+          {relatedArticles.map(({ article: related }) => <motion.div
+            key={related.slug}
+            variants={cardReveal}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-60px' }}
+            whileHover={cardHover}
+          >
+            <Link to={path(related)} className="group block h-full overflow-hidden rounded-xl border border-forest/10 bg-white transition-colors hover:border-brass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2">
+              <div className="aspect-[16/10] overflow-hidden bg-mist">
+                <img src={related.coverImage?.src || '/images/writing/stories-hero.jpg'} alt={related.coverImage?.alt || `Cover image for ${related.title}`} loading="lazy" className="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.03]" />
+              </div>
+              <div className="p-5">
+                <p className="text-xs font-medium uppercase tracking-wide text-brass">{related.category}</p>
+                <h3 className="mt-2 font-serif text-xl leading-tight">{related.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted line-clamp-3">{related.excerpt}</p>
+                {related.publishedAt && <p className="mt-4 text-xs text-muted">{formatArticleDate(related.publishedAt)}</p>}
+                <span className="mt-4 inline-block text-sm font-medium text-forest">Read story <span aria-hidden="true">→</span></span>
+              </div>
+            </Link>
+          </motion.div>)}
+        </Stagger>
+      </section>}
       <Link to={a.section === 'ideas' ? '/ideas-strategies' : '/stories'} className="mt-10 inline-block underline">← All articles</Link>
     </article>
   </>
