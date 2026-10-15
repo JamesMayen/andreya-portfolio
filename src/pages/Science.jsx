@@ -2,11 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { PageHero, Section, Seo } from '../components/ui'
 import { siteData } from '../data/siteData'
-
-const cardReveal = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45 } },
-}
+import { fadeUp as cardReveal, stagger, cardHover, viewportOnce } from '../components/motion'
 
 export default function Science() {
   const { science } = siteData;
@@ -26,15 +22,15 @@ export default function Science() {
         className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, margin: '-60px' }}
-        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+        viewport={viewportOnce}
+        variants={stagger}
       >
         {science.researchCards.map((card, index) => {
           const expanded = expandedCard === index
           return <motion.article
             key={card.title}
             variants={cardReveal}
-            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            whileHover={cardHover}
             className="overflow-hidden rounded-xl border border-forest/10 bg-white transition-shadow hover:shadow-lg"
           >
             <div className="aspect-[16/10] overflow-hidden bg-mist">

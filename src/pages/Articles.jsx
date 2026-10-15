@@ -4,15 +4,30 @@ import { Hero, Item, Section, Seo, Stagger, PageHero } from '../components/ui'
 import { articles, ideaCategories, readingTime, storyCategories } from '../data/articles'
 import { siteData } from '../data/siteData'
 import { motion } from 'framer-motion'
+import { fadeUp as cardReveal, cardHover, viewportOnce } from '../components/motion'
 
-const meta = a => [a.demo ? 'Demonstration content' : a.author, a.date, `${readingTime(a)} min read`].filter(Boolean).join(' · ')
-const path = a => `/${a.section === 'ideas' ? 'ideas-strategies' : 'stories'}/${a.slug}`
-const formatArticleDate = value => {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return 'Not specified'
-  const date = new Date(`${value}T00:00:00Z`)
-  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) return 'Not specified'
-  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(date)
+const readableDate = value => {
+  const match = /^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}))?$/.exec(value || '')
+  if (!match) return null
+  const [, day, time] = match
+  const date = new Date(`${day}T${time || '00:00'}:00Z`)
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== day) return null
+  // Time is shown exactly as entered (no timezone conversion).
+  const opts = { year: 'numeric', month: 'long', day: 'numeric', ...(time && { hour: 'numeric', minute: '2-digit', hour12: true }), timeZone: 'UTC' }
+  return new Intl.DateTimeFormat('en-GB', opts).format(date)
 }
+
+// Missing or invalid fields are omitted rather than shown as placeholders.
+const metaItems = a => [
+  a.author && { label: 'Author', value: a.author },
+  readableDate(a.publishedAt || a.date) && { label: 'Published', value: readableDate(a.publishedAt || a.date) },
+  readableDate(a.updatedAt) && { label: 'Updated', value: readableDate(a.updatedAt) },
+  a.body?.length && { label: 'Reading time', value: `${readingTime(a)} min read` },
+].filter(Boolean)
+
+const meta = a => [a.demo && 'Demonstration content', ...metaItems(a).map(i => i.value)].filter(Boolean).join(' · ')
+const path = a => `/${a.section === 'ideas' ? 'ideas-strategies' : 'stories'}/${a.slug}`
+const formatArticleDate = value => readableDate(value) || 'Not specified'
 
 const getRelatedArticles = article => articles
   .filter(candidate => candidate.section === article.section && candidate.slug !== article.slug && !candidate.demo && candidate.status !== 'draft' && candidate.published !== false)
@@ -28,15 +43,44 @@ const getRelatedArticles = article => articles
   .sort((left, right) => right.score - left.score)
   .slice(0, 3)
 
-const cardReveal = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+const FALLBACK_IMAGE = '/images/writing/stories-hero.jpg'
+
+function StoryMeta({ item }) {
+  const items = metaItems(item)
+  if (!items.length) return null
+  return <dl className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+    {items.map(({ label, value }) => <div key={label} className="flex flex-wrap gap-1"><dt className="font-medium text-forest">{label}:</dt><dd>{value}</dd></div>)}
+  </dl>
 }
 
-const cardHover = {
-  y: -4,
-  boxShadow: '0 12px 24px -8px rgba(0,0,0,0.1)',
-  transition: { duration: 0.3, ease: 'easeOut' }
+// Single card used for both the featured (horizontal) and regular (vertical) layouts.
+function StoryCard({ item, featured = false }) {
+  const isArticle = 'section' in item
+  const image = item.image || item.coverImage?.src || FALLBACK_IMAGE
+  const alt = item.image ? item.image : (item.coverImage?.alt || `Cover image for ${item.title}`)
+  const reveal = featured
+    ? { initial: 'hidden', animate: 'show' }
+    : { initial: 'hidden', whileInView: 'show', viewport: viewportOnce }
+  return (
+    <motion.div variants={cardReveal} whileHover={cardHover} {...reveal} className={featured ? 'mb-10' : 'h-full'}>
+      <Link to={isArticle ? path(item) : '#'} className={`group flex h-full overflow-hidden rounded-xl border border-forest/10 bg-white transition-colors duration-300 hover:border-brass ${featured ? 'flex-col md:grid md:grid-cols-[1fr_1.2fr]' : 'flex-col'}`}>
+        <div className={`relative overflow-hidden ${featured ? 'aspect-[4/3] md:aspect-auto md:min-h-[320px]' : 'aspect-[4/3]'}`}>
+          <img src={image} alt={alt} className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none ${featured ? 'md:absolute md:inset-0' : ''}`} />
+        </div>
+        <div className={`flex flex-1 flex-col ${featured ? 'justify-center p-6 md:p-8' : 'p-6'}`}>
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs uppercase tracking-wide text-brass">
+            <span>{item.category}{featured && ' · Featured'}</span>
+            {item.demo && <span className="rounded-full bg-mist px-2 py-0.5 normal-case tracking-normal text-forest">Demonstration content</span>}
+            {item.status === 'draft' && <span className="rounded-full bg-brass/90 px-2 py-0.5 normal-case tracking-normal text-white">{isArticle ? 'Draft' : 'Draft topic'}</span>}
+          </p>
+          <h3 className={`mt-2 font-serif leading-tight ${featured ? 'text-2xl md:text-3xl' : 'text-xl'}`}>{item.title}</h3>
+          <p className={`mt-3 text-sm leading-relaxed text-muted md:text-base ${featured ? '' : 'line-clamp-3'}`}>{item.excerpt}</p>
+          <StoryMeta item={item} />
+          {isArticle && <span className="mt-auto inline-flex items-center gap-2 pt-5 font-medium text-forest transition-colors group-hover:text-brass">Read Story <span aria-hidden="true">→</span></span>}
+        </div>
+      </Link>
+    </motion.div>
+  )
 }
 
 function Index({ section, cats, seo, hero, heroImage, topics }) {
@@ -69,76 +113,9 @@ function Index({ section, cats, seo, hero, heroImage, topics }) {
       </div>
       {list.length === 0 ? <p className="rounded-lg border border-dashed border-forest/30 p-10 text-center text-muted">No articles match yet. New writing will appear here.</p> :
       <>
-        {lead && section !== 'ideas' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-10 rounded-2xl overflow-hidden border border-forest/10 bg-white"
-          >
-            <div className="grid gap-6 md:grid-cols-[1fr_1.2fr]">
-              <div className="relative aspect-[4/3] md:aspect-auto md:h-full min-h-[300px]">
-                <img
-                  src={lead.coverImage?.src || '/images/writing/stories-hero.jpg'}
-                  alt={lead.coverImage?.alt || `Cover image for ${lead.title}`}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="p-6 md:p-8 flex flex-col justify-center">
-                <p className="text-xs text-brass uppercase tracking-wide">{lead.category}{lead === lead ? ' · Featured' : ''}</p>
-                <h3 className="mt-2 font-serif text-2xl md:text-3xl leading-tight">{lead.title}</h3>
-                <p className="mt-4 text-muted leading-relaxed">{lead.excerpt}</p>
-                <p className="mt-4 text-xs text-muted">{meta(lead)}</p>
-                <Link to={path(lead)} className="mt-6 inline-flex items-center gap-2 text-forest font-medium hover:text-brass transition-colors">
-                  Read Story <span aria-hidden="true">→</span>
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {lead && section !== 'ideas' && <StoryCard item={lead} featured />}
         <Stagger className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {list.filter(item => item !== lead).map(item => {
-            const isArticle = 'section' in item
-            const itemPath = isArticle ? path(item) : '#'
-            const itemImage = item.image || item.coverImage?.src || '/images/writing/stories-hero.jpg'
-            const itemAlt = item.image ? item.image : (item.coverImage?.alt || `Cover image for ${item.title}`)
-            const itemCategory = item.category
-            const itemTitle = item.title
-            const itemExcerpt = item.excerpt
-            const itemMeta = isArticle ? meta(item) : (item.status === 'draft' ? 'Draft topic' : '')
-            
-            return (
-              <motion.div
-                key={item.slug || item.title}
-                variants={cardReveal}
-                whileHover={cardHover}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, margin: '-100px' }}
-              >
-                <Link to={itemPath} className="block h-full rounded-xl overflow-hidden border border-forest/10 bg-white hover:border-brass transition-all duration-300">
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <img
-                      src={itemImage}
-                      alt={itemAlt}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    {item.status === 'draft' && (
-                      <div className="absolute top-3 left-3 rounded-full bg-brass/90 px-3 py-1 text-xs font-medium text-white">
-                        Draft
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <p className="text-xs text-brass uppercase tracking-wide">{itemCategory}</p>
-                    <h3 className="mt-2 font-serif text-xl leading-tight">{itemTitle}</h3>
-                    <p className="mt-2 text-sm text-muted line-clamp-2">{itemExcerpt}</p>
-                    {itemMeta && <p className="mt-4 text-xs text-muted">{itemMeta}</p>}
-                  </div>
-                </Link>
-              </motion.div>
-            )
-          })}
+          {list.filter(item => item !== lead).map(item => <StoryCard key={item.slug || item.title} item={item} />)}
         </Stagger>
       </>
       }
@@ -176,18 +153,20 @@ export function ArticleDetail() {
   return <>
     <Seo title={a.title} description={a.excerpt} />
     <article className="mx-auto max-w-3xl px-5 py-16">
-      <p className="text-xs text-brass uppercase tracking-wide">{a.category}</p>
-      <h1 className="mt-2 font-serif text-3xl md:text-4xl lg:text-5xl leading-tight">{a.title}</h1>
-      <p className="mt-3 text-sm text-muted">{meta(a)}</p>
+      <Stagger>
+      <Item><p className="text-xs text-brass uppercase tracking-wide">{a.category}</p></Item>
+      <Item><h1 className="mt-2 font-serif text-3xl md:text-4xl lg:text-5xl leading-tight">{a.title}</h1></Item>
+      <Item><p className="mt-3 text-sm text-muted">{meta(a)}</p></Item>
       {a.coverImage && (
-        <div className="mt-8 overflow-hidden rounded-xl">
+        <Item><div className="mt-8 overflow-hidden rounded-xl">
           <img
             src={a.coverImage.src}
             alt={a.coverImage.alt}
             className="h-auto w-full object-cover max-h-[500px]"
           />
-        </div>
+        </div></Item>
       )}
+      </Stagger>
       {!a.demo && <section aria-label="Publication dates" className="mt-8 grid gap-5 rounded-xl border border-forest/10 bg-white p-5 shadow-sm sm:grid-cols-2 sm:p-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-forest">Published</p>
@@ -210,7 +189,7 @@ export function ArticleDetail() {
             variants={cardReveal}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={viewportOnce}
             whileHover={cardHover}
           >
             <Link to={path(related)} className="group block h-full overflow-hidden rounded-xl border border-forest/10 bg-white transition-colors hover:border-brass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2">

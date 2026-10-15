@@ -1,10 +1,11 @@
-import { Truck, FlaskConical, PenLine, Lightbulb, Linkedin, MessageCircle, Mail, ChevronDown } from 'lucide-react'
+import { Truck, FlaskConical, PenLine, Lightbulb, Linkedin, MessageCircle, Mail, ChevronDown, Facebook } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Button, Card, Grid, Item, Reveal, Section, Seo, Stagger, PageHero } from '../components/ui'
+import { fadeUp as fadeInUp, stagger as staggerContainer, imageReveal } from '../components/motion'
 import { siteData, pillars, featured } from '../data/siteData'
 
 const Icons = { Truck, FlaskConical, PenLine, Lightbulb }
-const SocialIcons = { Linkedin, MessageCircle, Mail }
+const SocialIcons = { Linkedin, MessageCircle, Mail, Facebook }
 
 const Trade = () => (
   <svg viewBox="0 0 400 420" className="h-full w-full" aria-hidden="true">
@@ -23,16 +24,6 @@ const Trade = () => (
   </svg>
 )
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] } }
-}
-
-const staggerContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } }
-}
-
 const socialStagger = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } }
@@ -41,11 +32,6 @@ const socialStagger = {
 const highlightStagger = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } }
-}
-
-const imageReveal = {
-  hidden: { opacity: 0, scale: 0.96 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] } }
 }
 
 export default function Home() {
@@ -87,6 +73,7 @@ export default function Home() {
                         <motion.a
                           key={social.key}
                           variants={fadeInUp}
+                          whileHover={{ y: -3 }}
                           href={social.href}
                           target={social.external ? '_blank' : undefined}
                           rel={social.external ? 'noopener noreferrer' : undefined}
@@ -100,10 +87,10 @@ export default function Home() {
                   </motion.div>
                 </motion.div>
 
-                <motion.div variants={highlightStagger} className="mt-16 pt-10 border-t border-brass/20" role="list" aria-label="Professional highlights">
+                <motion.div variants={highlightStagger} initial="hidden" animate="show" className="mt-16 pt-10 border-t border-brass/20" role="list" aria-label="Professional highlights">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-center">
-                    {hero.highlights.map((highlight, i) => (
-                      <motion.div key={highlight.key} variants={fadeInUp} className="flex flex-col items-center md:items-start text-center md:text-left min-w-0" style={{ transitionDelay: `${0.1 * i}s` }}>
+                    {hero.highlights.map((highlight) => (
+                      <motion.div key={highlight.key} variants={fadeInUp} className="flex flex-col items-center md:items-start text-center md:text-left min-w-0">
                         <p className="font-serif text-3xl md:text-4xl text-brass" role="listitem">{highlight.value}</p>
                         <p className="mt-1.5 text-xs tracking-[.1em] uppercase text-ivory/60">{highlight.label}</p>
                       </motion.div>
@@ -144,13 +131,9 @@ export default function Home() {
             whileHover={{ y: -2 }}
           >
             <span className="text-xs tracking-[.2em] uppercase hidden sm:block">Scroll to explore</span>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="w-6 h-6 flex items-center justify-center"
-            >
+            <div className="w-6 h-6 flex items-center justify-center">
               <ChevronDown size={20} />
-            </motion.div>
+            </div>
           </motion.a>
         </div>
       </div>

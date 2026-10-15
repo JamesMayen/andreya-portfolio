@@ -2,17 +2,7 @@ import { useMemo, useState } from 'react'
 import { Section, Seo, PageHero } from '../components/ui'
 import { siteData } from '../data/siteData'
 import { motion } from 'framer-motion'
-
-const cardReveal = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-}
-
-const cardHover = {
-  y: -4,
-  boxShadow: '0 12px 24px -8px rgba(0,0,0,0.15)',
-  transition: { duration: 0.3, ease: 'easeOut' }
-}
+import { fadeUp as cardReveal, cardHover } from '../components/motion'
 
 const statusBadges = {
   professional: { label: 'Professional Experience', color: 'bg-forest text-ivory' },

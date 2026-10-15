@@ -2,17 +2,7 @@ import { Button, Card, Grid, Hero, Section, Seo, PageHero } from '../components/
 import ContactForm from '../components/ContactForm'
 import { siteData } from '../data/siteData'
 import { motion } from 'framer-motion'
-
-const cardReveal = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-}
-
-const cardHover = {
-  y: -4,
-  boxShadow: '0 12px 24px -8px rgba(0,0,0,0.15)',
-  transition: { duration: 0.3, ease: 'easeOut' }
-}
+import { fadeUp as cardReveal, cardHover } from '../components/motion'
 
 export default function Logistics() {
   const { logistics } = siteData;

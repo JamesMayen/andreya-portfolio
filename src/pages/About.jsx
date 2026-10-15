@@ -1,26 +1,21 @@
 import { Hero, Item, Reveal, Section, Seo, Stagger, Button } from '../components/ui'
+import { fadeUp as fadeInUp, stagger as staggerContainer, imageReveal, viewportOnce } from '../components/motion'
 import { siteData } from '../data/siteData'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] } }
-}
-
-const staggerContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08 } }
-}
-
-const imageReveal = {
-  hidden: { opacity: 0, scale: 0.98 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] } }
-}
-
-const imageHover = {
-  scale: 1.01,
-  transition: { duration: 0.3, ease: 'easeOut' }
+function GalleryImage({ image, fallback, className = '', eager = false }) {
+  return (
+    <motion.figure variants={imageReveal} className={`group relative overflow-hidden rounded-2xl border border-forest/10 bg-forest/10 shadow-sm ${className}`}>
+      <img
+        src={image.src}
+        alt={image.alt}
+        loading={eager ? 'eager' : 'lazy'}
+        className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none"
+        onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = fallback }}
+      />
+    </motion.figure>
+  )
 }
 
 export default function About() {
@@ -48,56 +43,16 @@ export default function About() {
           </motion.div>
         </div>
 
-        <div className="relative">
-          <motion.div 
-            variants={imageReveal} 
-            initial="hidden" 
-            animate="show" 
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ delay: 0.2 }}
-            className="relative"
-          >
-            <div className="relative grid gap-6" style={{ 
-              gridTemplateRows: '1fr auto',
-              gridTemplateColumns: '1fr',
-            }}>
-              <motion.div 
-                whileHover={imageHover}
-                className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-forest/10 border border-forest/10"
-              >
-                <img
-                  src={about.primaryImage.src}
-                  alt={about.primaryImage.alt}
-                  className="h-full w-full object-cover"
-                  loading="eager"
-                  onError={(e) => {
-                    e.currentTarget.src = '/images/profile/placeholder-primary.jpg';
-                    e.currentTarget.onError = null;
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-forest/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
-              </motion.div>
-
-              <motion.div 
-                whileHover={imageHover}
-                className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-forest/10 border border-forest/10 self-end -ml-6 md:-ml-8"
-                style={{ maxWidth: '85%' }}
-              >
-                <img
-                  src={about.secondaryImage.src}
-                  alt={about.secondaryImage.alt}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.src = '/images/profile/placeholder-secondary.jpg';
-                    e.currentTarget.onError = null;
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-forest/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          className="mx-auto grid w-full max-w-md gap-4 sm:gap-5 lg:sticky lg:top-24 lg:max-w-none"
+        >
+          <GalleryImage image={about.primaryImage} fallback="/images/profile/placeholder-primary.jpg" className="aspect-[5/4]" eager />
+          <GalleryImage image={about.secondaryImage} fallback="/images/profile/placeholder-secondary.jpg" className="ml-auto aspect-[4/3] w-[80%]" />
+        </motion.div>
       </div>
     </Section>
 

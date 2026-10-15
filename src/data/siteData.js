@@ -56,6 +56,13 @@ export const siteData = {
       icon: 'Mail',
       external: false,
     },
+     {
+      key: 'facebook',
+      label: 'Facebook',
+      href: 'https://www.facebook.com/andreya.mouratek',
+      icon: 'Facebook',
+      external: true,
+    },
   ],
 
   contact: {
@@ -65,6 +72,7 @@ export const siteData = {
     whatsappDisplay: '+211921191296',
     whatsappHref: 'https://wa.me/211921191296',
     linkedin: 'https://shorturl.at/90Vnl',
+    facebook: 'https://www.facebook.com/andreya.mouratek',
     location: 'South Sudan',
   },
 
@@ -101,10 +109,12 @@ export const siteData = {
       },
     ],
     portrait: {
-      src: '/images/profile/hero-portrait.jpg',
+      src: '/images/profile/P-3.jpeg',
       alt: 'Professional portrait of Andreya Mouratek',
     },
   },
+
+// About Section
 
   about: {
     heading: 'Who I Am',
@@ -135,6 +145,8 @@ export const siteData = {
     aspirations: 'I aspire to build a career that combines professional excellence, entrepreneurship, continuous learning, and meaningful contributions to society. Through this platform, I aim to share my work, connect with others, and create new professional opportunities.',
     interests: ['Literature', 'Community development', 'Public health', 'Entrepreneurship', 'Leadership', 'Environmental sustainability', 'The exchange of ideas'],
   },
+
+// Logistics and Business section
 
   logistics: {
     eyebrow: 'LOGISTICS · TRADE · PARTNERSHIPS',
@@ -167,17 +179,19 @@ export const siteData = {
       'Business development initiatives',
     ],
     heroImage: {
-      src: '/images/logistics/logistics-hero.jpg',
+      src: '/images/logistics/L-1.jpeg',
       alt: 'Freight transport and logistics operations in East Africa',
     },
   },
+
+// Science and Research section
 
   science: {
     eyebrow: 'SCIENCE · EVIDENCE · CURIOSITY',
     headline: 'Curiosity Guided by Evidence.',
     description: 'My academic background in Biological Sciences informs my interest in scientific inquiry, microbiology, public health, environmental issues, and evidence-based problem-solving.',
     fallbackImage: {
-      src: '/images/science/science-hero.jpg',
+      src: '/images/science/S-1.jpeg',  
       alt: 'Students gathered outside an academic building',
     },
     researchCards: [
@@ -186,46 +200,46 @@ export const siteData = {
         category: 'Academic Background',
         description: 'A foundation in biological systems, scientific concepts, and the study of living organisms, informing a broader interest in evidence-based understanding.',
         details: 'This describes Andreya’s academic background and broader scientific foundation.',
-        image: { src: '/images/science/science-hero.jpg', alt: 'Students gathered outside an academic building' },
+        image: { src: '/images/science/S-1.jpeg', alt: 'Students gathered outside an academic building' },
       },
       {
         title: 'Microbiology',
         category: 'Research Interest',
         description: 'An area of scientific interest focused on microorganisms, their interactions with living systems, and their relevance to health and the environment.',
         details: 'This is an area of interest, not a claim of a completed study or project.',
-        image: { src: '/images/science/science-hero.jpg', alt: 'Students gathered outside an academic building' },
+        image: { src: '/images/science/S-1.jpeg', alt: 'Students gathered outside an academic building' },
       },
       {
         title: 'Public Health',
         category: 'Research Interest',
         description: 'An interest in how evidence, health awareness, and public-health approaches can contribute to better-informed decisions and community wellbeing.',
         details: 'This is an area of interest, not a claim of a completed study or project.',
-        image: { src: '/images/science/science-hero.jpg', alt: 'Students gathered outside an academic building' },
+        image: { src: '/images/science/S-1.jpeg', alt: 'Students gathered outside an academic building' },
       },
       {
         title: 'Environmental Science & Sustainability',
         category: 'Research Interest',
         description: 'An interest in environmental challenges, sustainability, and the relationship between human activity and the natural environment.',
         details: 'This is an area of interest, not a claim of a completed study or project.',
-        image: { src: '/images/science/science-hero.jpg', alt: 'Students gathered outside an academic building' },
+        image: { src: '/images/science/S-1.jpeg', alt: 'Students gathered outside an academic building' },
       },
       {
         title: 'Scientific Inquiry & Evidence-Based Thinking',
         category: 'Research Interest',
         description: 'An interest in asking structured questions, examining available evidence, and approaching complex problems through careful reasoning.',
         details: 'This is an area of interest, not a claim of a completed study or project.',
-        image: { src: '/images/science/science-hero.jpg', alt: 'Students gathered outside an academic building' },
+        image: { src: '/images/science/S-1.jpeg', alt: 'Students gathered outside an academic building' },
       },
       {
         title: 'Research & Analytical Skills',
         category: 'Developing',
         description: 'An area for documenting relevant academic coursework, research methods, laboratory exposure, and analytical skills as verified details become available.',
         details: 'Coursework, methods, and laboratory exposure will be added when verified details are available.',
-        image: { src: '/images/science/science-hero.jpg', alt: 'Students gathered outside an academic building' },
+        image: { src: '/images/science/S-1.jpeg', alt: 'Students gathered outside an academic building' },
       },
     ],
     heroImage: {
-      src: '/images/science/science-hero.jpg',
+      src: '/images/science/S-1.jpeg',
       alt: 'Students gathered outside an academic building',
     },
   },
@@ -243,7 +257,7 @@ export const siteData = {
     },
   },
 
-  // Ideas and Thought Leadership Section
+  // Ideas and Strategies (Thought) Leadership Section
 
   ideas: {
     eyebrow: 'THINKING THROUGH PROBLEMS',
@@ -296,35 +310,35 @@ export const siteData = {
         title: 'Turning Professional Networks into Meaningful Opportunities',
         category: 'Marketing & Communication',
         excerpt: 'Strategies for nurturing connections that lead to referrals, partnerships, and career growth.',
-        image: '/images/writing/W-4.jpeg',
+        image: '/images/writing/W-6.jpeg',
         status: 'Draft',
       },
       {
         title: 'Why Coordination Matters in Freight Forwarding',
         category: 'Logistics, Customs & Cross-Border Trade',
         excerpt: 'An outline exploring the importance of communication, documentation, and coordination in cargo movement.',
-        image: '/images/logistics/logistics-hero.jpg',
+        image: '/images/logistics/L-1.jpeg',
         status: 'Draft',
       },
       {
         title: 'Understanding the Role of Documentation in Cargo Movement',
         category: 'Logistics, Customs & Cross-Border Trade',
         excerpt: 'How proper paperwork prevents delays, reduces risk, and builds trust across the supply chain.',
-        image: '/images/logistics/logistics-hero.jpg',
+        image: '/images/logistics/L-2.jpeg',
         status: 'Draft',
       },
       {
         title: 'Communication Between Transporters, Clearing Agents, and Clients',
         category: 'Logistics, Customs & Cross-Border Trade',
         excerpt: 'Practical approaches to keeping all stakeholders aligned during cross-border shipments.',
-        image: '/images/logistics/logistics-hero.jpg',
+        image: '/images/logistics/L-1.jpeg',
         status: 'Draft',
       },
       {
         title: 'Opportunities and Challenges in Regional Trade',
         category: 'Logistics, Customs & Cross-Border Trade',
         excerpt: 'An overview of emerging trade corridors, regulatory shifts, and practical considerations for East African markets.',
-        image: '/images/logistics/logistics-hero.jpg',
+        image: '/images/logistics/L-2.jpeg',
         status: 'Draft',
       },
       {
@@ -352,21 +366,21 @@ export const siteData = {
         title: 'What a Background in Biological Sciences Can Teach Us About Problem-Solving',
         category: 'Learning & Personal Development',
         excerpt: 'How scientific thinking — hypothesis, evidence, iteration — applies to business and life decisions.',
-        image: '/images/science/science-hero.jpg',
+        image: '/images/profile/P-5.jpeg',
         status: 'Draft',
       },
       {
         title: 'Developing a Career Across Different Professional Disciplines',
         category: 'Learning & Personal Development',
         excerpt: 'Lessons from building a path that spans logistics, research, entrepreneurship, and writing.',
-        image: '/images/profile/hero-portrait.jpg',
+        image: '/images/profile/P-9.jpeg',
         status: 'Draft',
       },
       {
         title: 'Turning Curiosity into Practical Skills',
         category: 'Learning & Personal Development',
         excerpt: 'A guide to moving from interest to competence through deliberate practice and real-world application.',
-        image: '/images/science/science-hero.jpg',
+        image: '/images/profile/P-10.jpeg',
         status: 'Draft',
       },
     ],
@@ -401,7 +415,7 @@ export const siteData = {
           'Shipment follow-up',
         ],
         image: {
-          src: '/images/logistics/logistics-hero.jpg',
+          src: '/images/logistics/L-1.jpeg',
           alt: 'Freight transport and logistics operations in East Africa',
         },
         status: 'professional',
@@ -419,7 +433,7 @@ export const siteData = {
           'Trade procedure awareness',
         ],
         image: {
-          src: '/images/logistics/logistics-hero.jpg',
+          src: '/images/logistics/L-2.jpeg',
           alt: 'Cargo documentation and customs coordination environment',
         },
         status: 'professional',
@@ -437,7 +451,7 @@ export const siteData = {
           'Public health and environmental issues',
         ],
         image: {
-          src: '/images/science/science-hero.jpg',
+          src: '/images/profile/P-4.jpeg',
           alt: 'Biological sciences and research environment',
         },
         status: 'academic',
@@ -488,7 +502,7 @@ export const siteData = {
           'Youth professional development',
         ],
         image: {
-          src: '/images/profile/hero-portrait.jpg',
+          src: '/images/writing/W-2.jpeg',
           alt: 'Professional collaboration and community engagement',
         },
         status: 'writing',
